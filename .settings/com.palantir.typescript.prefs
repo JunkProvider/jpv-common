@@ -1,0 +1,5 @@
+build.path.exportedFolder=
+build.path.sourceFolder=source
+compiler.outputDirOption=builds
+compiler.outputFileOption=jpv-common.js
+eclipse.preferences.version=1

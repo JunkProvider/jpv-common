@@ -1,0 +1,128 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>JPV Common Test</title>
+		<script src="builds/jpv-common.js"></script>
+		<style>
+			.orbit-point {
+				position: absolute;
+				background-color: blue;
+				border-radius: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			var geo = jpvCommon.geometry;
+			
+			var G = 0.0001;
+			
+			var m = Math.pow(10, 9);
+			var g = m * G;
+			var p = new geo.Vector(50, 0);
+			var v = new geo.Vector(0, Math.sqrt(g / p.length()) * 1.2);
+			
+			var start = Math.PI * 2 * 0;
+			p = p.rotate(start);
+			v = v.rotate(start);
+			
+			var orbit = geo.CommonOrbit.create(p, v, g);
+			// var orbit = new geo.CommonOrbit(300, 0.90, new geo.Angle(Math.PI * 0.5));
+			console.log(orbit);
+		
+			function appendPoint(options) {
+				if (!options.size) {
+					options.size = 1;
+				}
+				// console.log(options.position);
+				options.size *= 5;
+				var div = document.createElement("div");
+				div.classList.add("orbit-point");
+				div.style.left = Math.round(orbit.majorAxis + options.position.x - options.size / 2) + "px";
+				div.style.top = Math.round(orbit.majorAxis + options.position.y - options.size / 2) + "px";
+				div.style.backgroundColor = options.color;
+				div.style.width = options.size + "px";
+				div.style.height = options.size + "px";
+				if (options.id) {
+					div.id = options.id;
+				}
+				if (options.title) {
+					div.title = options.title;
+				}
+				document.body.appendChild(div);
+			}
+			
+			function movePoint(id, position) {
+				var div = document.getElementById(id);
+				div.classList.add("orbit-point");
+				div.style.left = orbit.majorAxis + position.x + "px";
+				div.style.top = orbit.majorAxis + position.y + "px";
+			}
+			
+			var n = 200;
+			for (var i = 0; i < n; i++) {
+				var anomaly = new geo.Angle(i * 2 * Math.PI / n);
+				var position = orbit.eccentricAnomalyToPositionVector(anomaly);
+				appendPoint({
+					position: position,
+					color: "lightgrey"
+				});
+			}
+			
+			appendPoint({
+				position: geo.Vector.ZERO,
+				color: "green",
+				title: "primary focus",
+				size: 4
+			});
+			appendPoint({
+				position: orbit.secondFocus,
+				color: "blue",
+				title: "secondary focus"
+			});
+			appendPoint({
+				position: orbit.apoapsis,
+				color: "blue",
+				title: "apoapsis"
+			});
+			appendPoint({
+				position: orbit.periapsis,
+				color: "blue",
+				title: "periapsis"
+			});
+
+			appendPoint({
+				id: "satPrev",
+				position: p,
+				color: "orange",
+				title: "satellite (preview)"
+			});
+			
+			appendPoint({
+				id: "sat",
+				position: p,
+				color: "red",
+				title: "satellite"
+			});
+			
+			var prevAnomaly = orbit.positionVectorToEccentricAnomaly(p);
+	
+			var interval = setInterval(function() {
+				var tDelta = 30 / 1000;
+				var prevPos = orbit.eccentricAnomalyToPositionVector(prevAnomaly);
+				var prevVel = orbit.velocityAtAnom(prevAnomaly, g);//orbit.eccentricAnomalyToVelocityFactor(prevAnomaly);
+				prevAnomaly = prevAnomaly.add(prevVel * tDelta);
+				movePoint("satPrev", prevPos);
+				v = v.sub(p.normalize().mul(new geo.Vector(tDelta * g / p.sqrLength())));
+				p = p.add(v.mul(new geo.Vector(tDelta)));
+				movePoint("sat", p);
+				appendPoint({
+					position: p,
+					color: "red",
+					size: 0.2
+				});
+			}, 30);
+			setTimeout(function() { clearInterval(interval); }, 30000)
+		</script>
+	</body>
+</html>

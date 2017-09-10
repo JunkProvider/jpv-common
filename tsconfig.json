@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "None",
+    "target": "ES6",
+    "outFile": "builds/jpv-common.js",
+    "declaration": true,
+    "sourceMap": false,
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": false
+  },
+  "include": [
+    "source/jpvCommon/**/*"
+  ],
+  "compileOnSave": true
+}
