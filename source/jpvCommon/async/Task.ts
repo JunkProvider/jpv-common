@@ -1,6 +1,6 @@
 /// <reference path="../timing/Timeout.ts" />
 
-namespace jpvCommon.collection {
+namespace jpvCommon.async {
     
     export interface Action<Data> {
         start(): Promise<Data>;
